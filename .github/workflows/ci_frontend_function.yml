@@ -1,0 +1,75 @@
+name: "[_CI] frontend CI Function"
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.subsystem }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    inputs:
+      subsystem:
+        type: string
+        required: true
+        description: "The subsystem to run the CI for."
+      working-directory:
+        type: string
+        required: true
+        description: "The working directory to run the CI in."
+
+jobs:
+  frontend-ci-function:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ inputs.working-directory }}/.node-version
+          # キャッシュ機能は無効化（自前で制御するため）
+          cache: ""
+
+      - name: Get yarn.lock hash
+        id: yarn-lock
+        run: echo "hash=$(sha256sum yarn.lock | cut -d ' ' -f 1)" >> $GITHUB_OUTPUT
+
+      # キャッシュの復元（全ブランチで実行）
+      - name: Restore dependencies cache
+        uses: actions/cache/restore@v4
+        id: cache-restore
+        with:
+          path: |
+            ${{ inputs.working-directory }}/node_modules
+            node_modules
+            ~/.cache/yarn
+          key: yarn-deps-${{ inputs.subsystem }}-${{ github.ref == 'refs/heads/develop' && 'develop' || 'branch' }}-${{ steps.yarn-lock.outputs.hash }}
+          restore-keys: |
+            yarn-deps-${{ inputs.subsystem }}-${{ github.ref == 'refs/heads/develop' && 'develop' || 'branch' }}-
+            yarn-deps-${{ inputs.subsystem }}-develop-
+
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+        working-directory: ${{ inputs.working-directory }}
+
+      # キャッシュの保存（developブランチのみ実行）
+      - name: Save dependencies cache
+        uses: actions/cache/save@v4
+        if: github.ref == 'refs/heads/develop'
+        with:
+          path: |
+            ${{ inputs.working-directory }}/node_modules
+            node_modules
+            ~/.cache/yarn
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+
+      - name: Execute ESLint
+        run: yarn lint:check
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: Execute Jest
+        run: yarn test
+        working-directory: ${{ inputs.working-directory }}
+
+      - name: Execute tsc
+        run: yarn tsc
+        working-directory: ${{ inputs.working-directory }}

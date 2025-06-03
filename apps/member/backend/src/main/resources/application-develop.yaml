@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    common:
+      driver-class-name: org.postgresql.Driver
+    tenant:
+      driver-class-name: org.postgresql.Driver
+  config:
+    # FrontEndのURL
+    frontend-url-format: ${FRONTEND_URL_FORMAT}
+    common:
+      migration: db/migration/common
+      testdata: db/testdata/common
+    tenant:
+      migration: db/migration/tenant
+      testdata: db/testdata/tenant/{tenantKey}
+  aws:
+    secretsmanager:
+      endpoint: # default
+      region: ap-northeast-1
+      common: ${COMMON_SECRET}
+      flyway: ${FLYWAY_SECRET}
+      security: ${SECURITY_SECRET}
+    s3:
+      endpoint: # default
+      region: ap-northeast-1
+      bucket-name: ${UPLOAD_BUCKET_NAME}
+server:
+  port: 8443
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: test1234
+    key-store-type: PKCS12
+    key-alias: tomcat

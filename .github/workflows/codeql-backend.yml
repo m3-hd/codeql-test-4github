@@ -1,0 +1,76 @@
+name: "CodeQL Backend Analysis"
+
+on:
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - "apps/*/backend/**"
+  pull_request:
+    branches: ["main", "dev"]
+    paths:
+      - "apps/*/backend/**"
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_call:  # 他のワークフローからの呼び出しを可能にする
+
+env:
+  JAVA_VERSION: '21'
+  GRADLE_OPTS: "-Xmx3g"
+
+jobs:
+  analyze-backend:
+    name: Analyze Backend (${{ matrix.target.name }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: manage-backend
+            path: apps/manage/backend
+          - name: member-backend
+            path: apps/member/backend
+
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: java-kotlin
+          build-mode: manual
+          db-location: "${{ runner.temp }}/codeql_db_${{ matrix.target.name }}"
+
+      - name: Build Backend
+        run: |
+          cd ${{ matrix.target.path }}
+          ./gradlew build --info -x ktlintCheck -x test
+        env:
+          _JAVA_OPTIONS: ${{ env.GRADLE_OPTS }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:java-kotlin/${{ matrix.target.name }}"
+          db-location: "${{ runner.temp }}/codeql_db_${{ matrix.target.name }}"
+

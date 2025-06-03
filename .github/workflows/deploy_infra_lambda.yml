@@ -1,0 +1,57 @@
+name: "deploy infra lambda images"
+concurrency:
+  group: deploy-infra-lambda-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: ["production", "develop"]
+    paths:
+      - ".github/workflows/deploy_infra_lambda.yml"
+      - ".github/workflows/deploy_infra_lambda_cw_logs_monitor_function.yml"
+      - "apps/infra-lambda/**"
+env:
+  aws_region: "ap-northeast-1"
+  infra_lambda_path: "apps/infra-lambda"
+  cw_logs_monitor_path: "apps/infra-lambda/cw-logs-monitor"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    timeout-minutes: 10
+    outputs:
+      aws_region: ${{ env.aws_region }}
+      env: ${{ github.ref_name }}
+      short-env: ${{ github.ref_name == 'develop' && 'dev' || github.ref_name == 'production' && 'prod' || github.ref_name == 'staging' && 'stg' || 'dummy' }}
+      cw_logs_monitor_working_directory: ${{ env.cw_logs_monitor_path }}
+      cw_logs_monitor_check: ${{ steps.diff.outputs.cw_logs_monitor_check }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin ${{ github.ref_name }} --depth=2
+      - name: Check directories has been updated.
+        id: diff
+        run: |
+          echo "cw_logs_monitor_check=$(git diff HEAD^ HEAD --name-only --relative=${{ env.cw_logs_monitor_path }} | wc -l)" >> $GITHUB_OUTPUT
+      - name: Output the number of updated files.
+        run: |
+          echo "cw-logs-monitor = ${{ steps.diff.outputs.cw_logs_monitor_check }}"
+
+  # 共通バッチイメージをMC AWSアカウント向けにデプロイ
+  cw_logs_monitor_deploy_mc:
+    needs: set-env
+    if: needs.set-env.outputs.cw_logs_monitor_check != '0'
+    uses: "./.github/workflows/deploy_infra_lambda_cw_logs_monitor_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "common"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.cw_logs_monitor_working_directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}

@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: ieyasu-member-backend
+  datasource:
+    common:
+      driver-class-name: org.postgresql.Driver
+      # TODO: ECSの環境変数がこれで拾えるのか要確認
+      url: ${SPRING_DATASOURCE_COMMON_URL}
+      url-ro: ${SPRING_DATASOURCE_COMMON_URL_RO}
+    tenant:
+      driver-class-name: org.postgresql.Driver
+      # TODO: ECSの環境変数がこれで拾えるのか要確認
+      url: ${SPRING_DATASOURCE_COMMON_URL}
+      url-ro: ${SPRING_DATASOURCE_COMMON_URL_RO}
+  flyway:
+    enabled: false
+    common:
+      migration: ${spring.config.common.migration}
+      testdata: ${spring.config.common.testdata}
+    tenant:
+      migration: ${spring.config.tenant.migration}
+      testdata: ${spring.config.tenant.testdata}
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: true
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false

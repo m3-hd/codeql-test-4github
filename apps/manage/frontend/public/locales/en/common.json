@@ -1,0 +1,38 @@
+{
+  "common": {
+    "email": "email",
+    "password": "password",
+    "signIn": "SignIn",
+    "signOut": "Sign Out",
+    "required": "Required",
+    "noData": "No data",
+    "dateTimeFormat": "MM/DD/YYYY HH:mm",
+    "dateFormat": "MM/DD/YYYY",
+    "timeFormat": "HH:mm",
+    "hours24hFormat": "HH",
+    "hours12hFormat": "hh",
+    "minutesFormat": "mm"
+  },
+  "validation": {
+    "invalid": "Invalid value.",
+    "required": "Required.",
+    "requiredWithLabel": "Please enter {{label}}.",
+    "string": {
+      "min": "Must be at least {{min}} characters.",
+      "max": "Must be at most {{max}} characters.",
+      "email": "Must be a valid email address."
+    },
+    "number": {
+      "min": "Must be at least {{min}}.",
+      "max": "Must be less than or equal to {{max}}."
+    },
+    "date": {
+      "min": "Must be after {{min}}.",
+      "max": "Must be before {{max}}."
+    },
+    "array": {
+      "min": "Must have at least {{min}} items.",
+      "max": "Must have at most {{max}} items."
+    }
+  }
+}

@@ -1,0 +1,16 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+    branches: ["main", "develop"]
+  schedule:
+    - cron: "0 0 * * 0"
+
+jobs:
+  analyze-backend:
+    uses: ./.github/workflows/codeql-backend.yml
+
+  analyze-frontend:
+    uses: ./.github/workflows/codeql-frontend.yml

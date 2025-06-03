@@ -1,0 +1,53 @@
+spring:
+  datasource:
+    common:
+      driver-class-name: org.postgresql.Driver
+      # TODO: なぜか環境変数が拾えないのでここで強制的に上書きする
+      url: jdbc:postgresql://localhost:5432/postgres
+      url-ro: # ローカルにはReadOnlyがないので省略
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        idle-timeout: 300000
+        connection-timeout: 20000
+        max-lifetime: 1200000
+    tenant:
+      driver-class-name: org.postgresql.Driver
+      # TODO: なぜか環境変数が拾えないのでここで強制的に上書きする
+      url: jdbc:postgresql://localhost:5432/postgres
+      url-ro: # ローカルにはReadOnlyがないので省略
+      hikari:
+        maximum-pool-size: 10
+        minimum-idle: 5
+        idle-timeout: 300000
+        connection-timeout: 20000
+        max-lifetime: 1200000
+  jpa:
+    show-sql: true
+  config:
+    # FrontEndのURL
+    frontend-url-format: "https://{tenantKey}.localhost:3001"
+    common:
+      migration: db/migration/common
+      testdata: db/testdata/common
+    tenant:
+      migration: db/migration/tenant
+      testdata: db/testdata/tenant/{tenantKey}
+  aws:
+    secretsmanager:
+      endpoint: http://localhost:4566
+      region: us-east-1
+      common: local/ieyasu/common
+      flyway: local/ieyasu/flyway
+      security: local/ieyasu/security
+    s3:
+      endpoint: http://localhost:4566
+      region: us-east-1
+      bucket-name: local-common-user-upload-files
+server:
+  port: 8444
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: test1234
+    key-store-type: PKCS12
+    key-alias: tomcat

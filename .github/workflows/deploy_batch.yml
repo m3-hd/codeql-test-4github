@@ -1,0 +1,102 @@
+name: "deploy batch"
+concurrency:
+  group: deploy-batch-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: ["production", "develop", "feature/batch-6"]
+    paths:
+      - ".github/workflows/deploy_batch.yml"
+      - ".github/workflows/deploy_batch_common_function.yml"
+      - ".github/workflows/deploy_batch_email_function.yml"
+      - ".github/workflows/deploy_*_batch_function.yml"
+      - "apps/batch/**"
+env:
+  aws_region: "ap-northeast-1"
+  batch_path: "apps/batch"
+  batch_common_path: "apps/batch/common"
+  batch_email_path: "apps/batch/email"
+  batch_tenant_mc_path: "apps/batch/tenants/mc"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    # environment: "develop"
+    timeout-minutes: 10
+    outputs:
+      aws_region: ${{ env.aws_region }}
+      env: ${{ github.ref_name }}
+      # env: "develop"
+      short-env: ${{ github.ref_name == 'develop' && 'dev' || github.ref_name == 'production' && 'prod' || github.ref_name == 'staging' && 'stg' || 'dummy' }}
+      # short-env: "dev"
+      batch-common-working-directory: ${{ env.batch_common_path }}
+      batch-email-working-directory: ${{ env.batch_email_path }}
+      batch-tenant-mc-working-directory: ${{ env.batch_tenant_mc_path }}
+      batch_common_check: ${{ steps.diff.outputs.batch_common_check }}
+      batch_email_check: ${{ steps.diff.outputs.batch_email_check }}
+      batch_tenant_mc_check: ${{ steps.diff.outputs.batch_tenant_mc_check }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin ${{ github.ref_name }} --depth=2
+      - name: Check directories has been updated.
+        id: diff
+        run: |
+          echo "batch_common_check=$(git diff HEAD^ HEAD --name-only --relative=${{ env.batch_common_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "batch_email_check=$(git diff HEAD^ HEAD --name-only --relative=${{ env.batch_email_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "batch_tenant_mc_check=$(git diff HEAD^ HEAD --name-only --relative=${{ env.batch_tenant_mc_path }} | wc -l)" >> $GITHUB_OUTPUT
+      - name: Output the number of updated files.
+        run: |
+          echo "batch_common = ${{ steps.diff.outputs.batch_common_check }}, batch_email = ${{ steps.diff.outputs.batch_email_check }}, batch_tenant_mc = ${{ steps.diff.outputs.batch_tenant_mc_check }}"
+
+  # 共通バッチイメージをMC AWSアカウント向けにデプロイ
+  batch-deploy-common-mc:
+    needs: set-env
+    if: needs.set-env.outputs.batch_common_check != '0'
+    uses: "./.github/workflows/deploy_batch_common_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "batch"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.batch-common-working-directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+
+  # Email送信LambdaイメージをMC AWSアカウント向けにデプロイ
+  batch-deploy-email-mc:
+    needs: set-env
+    if: needs.set-env.outputs.batch_email_check != '0'
+    uses: "./.github/workflows/deploy_batch_email_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "common"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.batch-email-working-directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+
+  # MC用個別バッチイメージをMC AWSアカウント向けにデプロイ
+  batch-deploy-tenant-mc:
+    needs: set-env
+    if: needs.set-env.outputs.batch_tenant_mc_check != '0'
+    uses: "./.github/workflows/deploy_mc_batch_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "batch"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.batch-tenant-mc-working-directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}

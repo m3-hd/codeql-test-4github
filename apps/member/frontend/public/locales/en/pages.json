@@ -1,0 +1,18 @@
+{
+  "pages": {
+    "signIn": {
+      "signInWith": "Sign in with {{provider}}",
+      "or": "OR",
+      "confirmEmailCode": {
+        "title": "The verification code has been sent to your registered e-mail address.<br/>Please enter the verification code.",
+        "submit": "Submit",
+        "code": "Verification Code"
+      },
+      "confirmNewPassword": {
+        "title": "Please set a new password",
+        "submit": "Submit",
+        "newPassword": "New Password"
+      }
+    }
+  }
+}

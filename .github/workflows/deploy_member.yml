@@ -1,0 +1,64 @@
+name: "deploy-member"
+concurrency:
+  group: deploy-member-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: ["production", "develop"]
+    paths:
+      - ".github/workflows/deploy_member.yml"
+      - ".github/workflows/deploy_*_frontend_function.yml"
+      - ".github/workflows/deploy_*_backend_function.yml"
+      - "apps/member/frontend/**"
+      - "apps/member/backend/**"
+env:
+  aws_region: "ap-northeast-1"
+  member_path: "apps/member"
+  member_frontend_path: "apps/member/frontend"
+  member_backend_path: "apps/member/backend"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    timeout-minutes: 10
+    outputs:
+      aws_region: ${{ env.aws_region }}
+      env: ${{ github.ref_name }}
+      short-env: ${{ github.ref_name == 'develop' && 'dev' || github.ref_name == 'production' && 'prod' || github.ref_name == 'staging' && 'stg' || 'dummy' }}
+      member-frontend-working-directory: ${{ env.member_frontend_path }}
+      member-backend-working-directory: ${{ env.member_backend_path }}
+    steps:
+      - uses: actions/checkout@v4
+
+  frontend-deploy-mc-member:
+    needs: set-env
+    uses: "./.github/workflows/deploy_mc_frontend_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "member"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.member-frontend-working-directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+
+  backend-deploy-mc-member:
+    needs: set-env
+    uses: "./.github/workflows/deploy_mc_backend_function.yml"
+    with:
+      tenancy: "mc"
+      subsystem: "member"
+      aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+      aws-region: ${{ needs.set-env.outputs.aws_region }}
+      env: ${{ needs.set-env.outputs.env }}
+      short-env: ${{ needs.set-env.outputs.short-env }}
+      working-directory: ${{ needs.set-env.outputs.member-backend-working-directory }}
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}

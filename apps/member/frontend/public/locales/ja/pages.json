@@ -1,0 +1,18 @@
+{
+  "pages": {
+    "signIn": {
+      "signInWith": "{{provider}} でログイン",
+      "or": "または",
+      "confirmEmailCode": {
+        "title": "登録メールアドレス宛に認証コードを送信しました<br />認証コードを入力してください",
+        "submit": "認証コードを送信",
+        "code": "認証コード"
+      },
+      "confirmNewPassword": {
+        "title": "新しいパスワードを設定してください",
+        "submit": "パスワードを設定",
+        "newPassword": "新しいパスワード"
+      }
+    }
+  }
+}

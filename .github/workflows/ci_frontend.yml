@@ -1,0 +1,69 @@
+name: "[_CI] frontend"
+concurrency:
+  group: frontend-ci-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ci_frontend.yml"
+      - ".github/workflows/ci_frontend_function.yml"
+      - "apps/*/frontend/**"
+
+env:
+  manage_frontend_path: "apps/manage/frontend"
+  member_frontend_path: "apps/member/frontend"
+  admin_frontend_path: "apps/admin/frontend"
+
+jobs:
+  frontend-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      manage_check: ${{ steps.diff.outputs.manage_check }}
+      member_check: ${{ steps.diff.outputs.member_check }}
+      admin_check: ${{ steps.diff.outputs.admin_check }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin ${{ github.base_ref }} --depth=1
+      - name: Check directories has been updated.
+        id: diff
+        run: |
+          echo "manage_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.manage_frontend_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "member_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.member_frontend_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "admin_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.admin_frontend_path }} | wc -l)" >> $GITHUB_OUTPUT
+      - name: Output the number of updated files.
+        run: |
+          echo "manage = ${{ steps.diff.outputs.manage_check }}, member = ${{ steps.diff.outputs.member_check }}, admin = ${{ steps.diff.outputs.admin_check }}"
+
+  # CI Manage
+  frontend-ci-manage:
+    needs: frontend-ci
+    if: needs.frontend-ci.outputs.manage_check != '0'
+    uses: "./.github/workflows/ci_frontend_function.yml"
+    with:
+      subsystem: "manage"
+      # withでenvが使えないbagがある模様。直接パスを記述する https://github.com/actions/runner/issues/2372
+      # working-directory: ${{ env.manage_frontend_path }}
+      working-directory: "apps/manage/frontend"
+
+  # CI Member
+  frontend-ci-member:
+    needs: frontend-ci
+    if: needs.frontend-ci.outputs.member_check != '0'
+    uses: "./.github/workflows/ci_frontend_function.yml"
+    with:
+      subsystem: "member"
+      # withでenvが使えないbagがある模様。直接パスを記述する https://github.com/actions/runner/issues/2372
+      # working-directory: ${{ env.member_frontend_path }}
+      working-directory: "apps/member/frontend"
+
+  # CI Admin
+  frontend-ci-admin:
+    needs: frontend-ci
+    if: needs.frontend-ci.outputs.admin_check != '0'
+    uses: "./.github/workflows/ci_frontend_function.yml"
+    with:
+      subsystem: "admin"
+      # withでenvが使えないbagがある模様。直接パスを記述する https://github.com/actions/runner/issues/2372
+      # working-directory: ${{ env.admin_frontend_path }}
+      working-directory: "apps/admin/frontend"

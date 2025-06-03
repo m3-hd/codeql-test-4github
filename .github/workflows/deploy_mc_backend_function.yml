@@ -1,0 +1,147 @@
+name: "[_CD] Backend deploy function"
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.tenancy }}-backend-${{ inputs.subsystem }}-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN:
+        required: true
+        description: "The IAM role ARN to assume for deployment"
+    inputs:
+      tenancy:
+        type: string
+        required: true
+        description: "The tenancy to deploy to."
+      subsystem:
+        type: string
+        required: true
+        description: "The subsystem to run the deploy for."
+      aws-account:
+        type: string
+        required: true
+        description: "The AWS account to deploy to."
+      aws-region:
+        type: string
+        required: true
+        description: "The AWS region to deploy to."
+      env:
+        type: string
+        required: true
+        description: "The environment to deploy to."
+      short-env:
+        type: string
+        required: true
+        description: "The short environment to deploy to."
+      working-directory:
+        type: string
+        required: true
+        description: "The working directory to run the deploy in."
+
+env:
+  JAVA_VERSION: "21"
+  GRADLE_VERSION: "8.11.1"
+
+jobs:
+  backend-deploy-function:
+    runs-on:
+      labels: 4-core-runners
+    environment: ${{ inputs.env }}
+    timeout-minutes: 120
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+          role-duration-seconds: 7200
+
+      - name: Login to Amazon ECR (us-east-1)
+        id: login-ecr-us-east-1
+        uses: aws-actions/amazon-ecr-login@v2
+        env:
+          AWS_REGION: "us-east-1"
+        with:
+          registry-type: public
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
+
+      # DBとLocalstackのイメージをキャッシュしたい場合は以下を参考になりそう
+      # https://dev.classmethod.jp/articles/github-actions-cache-docker-images/
+      # ただし早くなるとは限ら無さそうなので、レート制限の回避などで必要なら検討する
+
+      - name: Setup DB and Localstack
+        run: docker compose -f compose.test.yaml up -d testdb test-localstack
+
+      - name: Login to Amazon ECR (default region)
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ECRの更新
+      - name: build and push Docker image
+        uses: docker/build-push-action@v6
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api
+        with:
+          push: true
+          context: .
+          file: docker/${{ inputs.subsystem }}/backend/Dockerfile.${{ inputs.env }}
+          platforms: linux/arm64
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=${{ inputs.subsystem }}-backend-cache
+          cache-to: |
+            ${{ github.ref == 'refs/heads/develop' && format('type=gha,mode=max,scope={0}-backend-cache', inputs.subsystem) || '' }}
+          provenance: false
+
+      - name: Get task-definition
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api --query taskDefinition --output json > ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api.json
+
+      - name: Fill in the new image ID and REVISION tag in the Amazon ECS task definition for api container
+        id: render-api-container
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api
+        with:
+          task-definition: ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api.json
+          container-name: api
+          image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          environment-variables: "REVISION=${{ github.sha }}"
+          log-configuration-options: |
+            awslogs-stream-prefix=${{ github.sha }}
+
+      # - name: Fill in the new image ID and REVISION tag in the Amazon ECS task definition for logrouter container
+      #   id: render-logrouter-container
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ${{ steps.render-api-container.outputs.task-definition }}
+      #     container-name: logrouter
+      #     # image: logrouterで使用するイメージを指定する
+      #     environment-variables: "REVISION=${{ github.sha }}"
+      #     log-configuration-options: |
+      #      awslogs-stream-prefix=${{ github.sha }}
+
+      - name: deploy Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-api-container.outputs.task-definition }}
+          # task-definition: ${{ steps.render-logrouter-container.outputs.task-definition }}
+          cluster: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be
+          service: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-be-api
+          propagate-tags: TASK_DEFINITION
+          wait-for-service-stability: false

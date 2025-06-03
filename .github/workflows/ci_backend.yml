@@ -1,0 +1,80 @@
+name: "[_CI] backend"
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/ci_backend.yml"
+      - ".github/workflows/ci_backend_function.yml"
+      - "apps/*/backend/**"
+
+env:
+  aws_region: "ap-northeast-1"
+  manage_backend_path: "apps/manage/backend"
+  member_backend_path: "apps/member/backend"
+  admin_backend_path: "apps/admin/backend"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      aws_region: ${{ env.aws_region }}
+      manage-backend-working-directory: ${{ env.manage_backend_path }}
+      member-backend-working-directory: ${{ env.member_backend_path }}
+      admin-backend-working-directory: ${{ env.admin_backend_path }}
+      manage_check: ${{ steps.diff.outputs.manage_check }}
+      member_check: ${{ steps.diff.outputs.member_check }}
+      admin_check: ${{ steps.diff.outputs.admin_check }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git fetch origin ${{ github.base_ref }} --depth=1
+      - name: Check directories has been updated.
+        id: diff
+        run: |
+          echo "manage_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.manage_backend_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "member_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.member_backend_path }} | wc -l)" >> $GITHUB_OUTPUT
+          echo "admin_check=$(git diff origin/${{ github.base_ref }} HEAD --name-only --relative=${{ env.admin_backend_path }} | wc -l)" >> $GITHUB_OUTPUT
+      - name: Output the number of updated files.
+        run: |
+          echo "manage = ${{ steps.diff.outputs.manage_check }}, member = ${{ steps.diff.outputs.member_check }}, admin = ${{ steps.diff.outputs.admin_check }}"
+  # CI Manage
+  backend-ci-manage:
+    needs: backend-ci
+    if: needs.backend-ci.outputs.manage_check != '0'
+    uses: "./.github/workflows/ci_backend_function.yml"
+    with:
+      subsystem: "manage"
+      aws-region: ${{ needs.backend-ci.outputs.aws_region }}
+      working-directory: ${{ needs.backend-ci.outputs.manage-backend-working-directory }}
+    secrets:
+      CI_IAM_ROLE_ARN: ${{ secrets.CI_IAM_ROLE_ARN }}
+
+  # CI Member
+  backend-ci-member:
+    needs: backend-ci
+    if: needs.backend-ci.outputs.member_check != '0'
+    uses: "./.github/workflows/ci_backend_function.yml"
+    with:
+      subsystem: "member"
+      aws-region: ${{ needs.backend-ci.outputs.aws_region }}
+      working-directory: ${{ needs.backend-ci.outputs.member-backend-working-directory }}
+    secrets:
+      CI_IAM_ROLE_ARN: ${{ secrets.CI_IAM_ROLE_ARN }}
+
+  # CI Admin
+  backend-ci-admin:
+    needs: backend-ci
+    if: needs.backend-ci.outputs.admin_check != '0'
+    uses: "./.github/workflows/ci_backend_function.yml"
+    with:
+      subsystem: "admin"
+      aws-region: ${{ needs.backend-ci.outputs.aws_region }}
+      working-directory: ${{ needs.backend-ci.outputs.admin-backend-working-directory }}
+    secrets:
+      CI_IAM_ROLE_ARN: ${{ secrets.CI_IAM_ROLE_ARN }}

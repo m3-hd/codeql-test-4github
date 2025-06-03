@@ -1,0 +1,144 @@
+name: "[_CD] Common Batch deploy function"
+concurrency:
+  group: ${{ github.workflow }}-${{ inputs.subsystem }}-common-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    secrets:
+      MC_DEPLOY_IAM_ROLE_ARN:
+        required: true
+        description: "The IAM role ARN to assume for deployment"
+    inputs:
+      tenancy:
+        type: string
+        required: true
+        description: "The tenancy to deploy to."
+      subsystem:
+        type: string
+        required: true
+        description: "The subsystem to run the deploy for."
+      aws-account:
+        type: string
+        required: true
+        description: "The AWS account to deploy to."
+      aws-region:
+        type: string
+        required: true
+        description: "The AWS region to deploy to."
+      env:
+        type: string
+        required: true
+        description: "The environment to deploy to."
+      short-env:
+        type: string
+        required: true
+        description: "The short environment to deploy to."
+      working-directory:
+        type: string
+        required: true
+        description: "The working directory to run the deploy in."
+
+jobs:
+  common-batch-deploy-function:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+    timeout-minutes: 60
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR (us-east-1)
+        id: login-ecr-us-east-1
+        uses: aws-actions/amazon-ecr-login@v2
+        env:
+          AWS_REGION: us-east-1
+        with:
+          registry-type: public
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          buildkitd-flags: --debug
+
+      - name: Login to Amazon ECR (default region)
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ECRの更新
+      - name: build and push Docker image app
+        uses: docker/build-push-action@v6
+        id: build-image-app
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common
+        with:
+          push: true
+          context: ./${{ inputs.working-directory }}
+          file: ${{  inputs.working-directory }}/Dockerfile.${{ inputs.env}}
+          platforms: linux/arm64
+          tags: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          cache-from: |
+            type=gha,scope=common-batch-cache
+          cache-to: |
+            ${{ github.ref == 'refs/heads/develop' && 'type=gha,mode=max,scope=common-batch-cache' || '' }}
+          provenance: false
+
+      - name: Get task-definition auto-send-messages
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-send-messages --query taskDefinition --output json > ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-send-messages.json
+
+      - name: Fill in the new image ID and REVISION tag [auto-send-messages]
+        id: render-batch-container-auto-send-messages
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common
+        with:
+          task-definition: ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-send-messages.json
+          container-name: "batch"
+          image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          environment-variables: "REVISION=${{ github.sha }}"
+          log-configuration-options: |
+            awslogs-stream-prefix=${{ github.sha }}
+
+      - name: update Amazon ECS task definition [auto-send-messages]
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-batch-container-auto-send-messages.outputs.task-definition }}
+          cluster: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common
+          propagate-tags: TASK_DEFINITION
+
+      - name: Get task-definition auto-send-labeling
+        run: |
+          aws ecs describe-task-definition --task-definition ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-labeling --query taskDefinition --output json > ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-labeling.json
+
+      - name: Fill in the new image ID and REVISION tag [auto-labeling]
+        id: render-batch-container-auto-labeling
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common
+        with:
+          task-definition: ./${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common-auto-labeling.json
+          container-name: "batch"
+          image: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+          environment-variables: "REVISION=${{ github.sha }}"
+          log-configuration-options: |
+            awslogs-stream-prefix=${{ github.sha }}
+
+      - name: update Amazon ECS task definition [auto-labeling]
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v2
+        with:
+          task-definition: ${{ steps.render-batch-container-auto-labeling.outputs.task-definition }}
+          cluster: ${{ inputs.tenancy }}-${{ inputs.short-env }}-${{ inputs.subsystem }}-common
+          propagate-tags: TASK_DEFINITION

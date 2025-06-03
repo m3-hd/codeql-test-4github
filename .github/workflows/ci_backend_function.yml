@@ -1,0 +1,84 @@
+name: "[_CI] backend CI Function"
+concurrency:
+  group: ${{ github.workflow }}-backend-${{ inputs.subsystem }}-${{ github.ref }}-${{ github.sha }}
+  cancel-in-progress: true
+
+on:
+  workflow_call:
+    secrets:
+      CI_IAM_ROLE_ARN:
+        required: true
+        description: "The IAM role ARN to assume for deployment"
+    inputs:
+      subsystem:
+        type: string
+        required: true
+        description: "The subsystem to run the CI for."
+      aws-region:
+        type: string
+        required: true
+        description: "The AWS region to deploy to."
+      working-directory:
+        type: string
+        required: true
+        description: "The working directory to run the CI in."
+
+env:
+  JAVA_VERSION: "21"
+  GRADLE_VERSION: "8.11.1"
+
+jobs:
+  backend-ci-function:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.CI_IAM_ROLE_ARN }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR (us-east-1)
+        id: login-ecr-us-east-1
+        uses: aws-actions/amazon-ecr-login@v2
+        env:
+          AWS_REGION: "us-east-1"
+        with:
+          registry-type: public
+
+      # DBとLocalstackのイメージをキャッシュしたい場合は以下を参考になりそう
+      # https://dev.classmethod.jp/articles/github-actions-cache-docker-images/
+      # ただし早くなるとは限ら無さそうなので、レート制限の回避などで必要なら検討する
+
+      - name: Setup test environment
+        run: |
+          docker compose -f compose.test.yaml up -d testdb test-localstack
+
+      - name: Setup java for ${{ inputs.subsystem }} backend
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: ${{ env.JAVA_VERSION }}
+      - name: Setup gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+      - name: Execute tests with info logging
+        run: ./gradlew test-local --info
+        working-directory: ${{ inputs.working-directory }}
+      - name: Cleanup test containers
+        if: always()
+        run: |
+          docker compose -f compose.test.yaml down
+          docker volume rm v1-ieyasu_testdb-data v1-ieyasu_test-localstack-data || true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ${{ inputs.subsystem }}-results
+          path: "${{ inputs.working-directory }}/build/reports/"
+          retention-days: 7

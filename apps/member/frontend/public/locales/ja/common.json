@@ -1,0 +1,39 @@
+{
+  "common": {
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "signIn": "ログイン",
+    "signOut": "ログアウト",
+    "required": "必須",
+    "noData": "データがありません",
+    "accountSetting": "アカウント設定",
+    "dateTimeFormat": "YYYY年MM月DD日 HH:mm",
+    "dateFormat": "YYYY年MM月DD日",
+    "timeFormat": "HH:mm",
+    "hours24hFormat": "HH",
+    "hours12hFormat": "hh",
+    "minutesFormat": "mm"
+  },
+  "validation": {
+    "invalid": "無効な値です",
+    "required": "必須項目です",
+    "requiredWithLabel": "{{label}}を入力してください",
+    "string": {
+      "min": "{{min}}文字以上で入力してください",
+      "max": "{{max}}文字以下で入力してください",
+      "email": "正しいメールアドレスを入力してください"
+    },
+    "number": {
+      "min": "{{min}}以上で入力してください",
+      "max": "{{max}}以下で入力してください"
+    },
+    "date": {
+      "min": "{{min}}以降で入力してください",
+      "max": "{{max}}以前で入力してください"
+    },
+    "array": {
+      "min": "{{min}}個以上入力してください",
+      "max": "{{max}}個以下で入力してください"
+    }
+  }
+}

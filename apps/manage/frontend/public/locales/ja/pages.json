@@ -1,0 +1,705 @@
+{
+  "pages": {
+    "signIn": {
+      "signInWith": "{{provider}} でログイン",
+      "or": "または",
+      "confirmEmailCode": {
+        "title": "登録メールアドレス宛に認証コードを送信しました<br />認証コードを入力してください",
+        "submit": "認証コードを送信",
+        "code": "認証コード"
+      },
+      "confirmNewPassword": {
+        "title": "新しいパスワードを設定してください",
+        "submit": "パスワードを設定",
+        "newPassword": "新しいパスワード"
+      }
+    },
+    "consultation": {
+      "course": {
+        "list": {
+          "title": "面談一覧",
+          "addButton": "面談を作成",
+          "editButton": "編集",
+          "deleteButton": "削除",
+          "labelMemberLabels": "対象者",
+          "labelSearchTags": "検索タグ",
+          "table": {
+            "name": "名称",
+            "memberLabels": "対象者",
+            "searchTags": "検索タグ"
+          }
+        },
+        "new": {
+          "title": "面談の作成"
+        },
+        "edit": {
+          "title": "面談の編集",
+          "labelName": "面談名",
+          "labelTarget": "対象者",
+          "labelTargetAll": "全員",
+          "labelTargetLabel": "ラベルで絞り込み",
+          "labelTargetDescription": "対象のラベルが表示されない場合は、従業員一覧からラベルを作成してください。",
+          "labelTerm": "実施期間",
+          "labelReserve": "予約可能期間",
+          "labelModifiablePeriod": "予約変更可能期間",
+          "labelModifiablePeriodNone": "予約可能期間と同じ",
+          "labelModifiablePeriodDays": "枠の日付の",
+          "labelModifiablePeriodDaysBefore": "日前",
+          "labelReservableBy": "予約できる人",
+          "labelReservableByAll": "全員",
+          "labelReservableByStaff": "スタッフのみ",
+          "labelRecordForm": "使用する記録フォーム",
+          "labelSearchTag": "検索タグ"
+        }
+      },
+      "record": {
+        "item": {
+          "title": "面談記録項目登録",
+          "addButton": "面談記録項目を作成",
+          "listTitleName": "名称",
+          "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "listDeleteSuccess": "データを削除しました",
+          "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+        },
+        "itemAdd": {
+          "createTitle": "面談記録項目の登録",
+          "editTitle": "面談記録項目の編集",
+          "formLabelName": "名称",
+          "formLabelQuestion": "質問文",
+          "formLabelInputType": "入力種別",
+          "formLabelOption": "選択肢",
+          "formLabelInputTypePlaceholder": "選択してください",
+          "formLabelAddFreeInput": "その他テキストを入力可能にする",
+          "formLabelRestriction": "入力制限",
+          "text": "テキスト",
+          "longtext": "長文テキスト",
+          "radio": "ラジオボタン",
+          "checkbox": "チェックボックス",
+          "pulldown": "プルダウン",
+          "scale": "均等目盛",
+          "date": "日付",
+          "time": "時刻",
+          "datetime": "日時",
+          "yearmonth": "年月",
+          "file": "ファイル",
+          "department": "部署",
+          "interviewer": "面談者",
+          "restriction": {
+            "none": "なし",
+            "numeric": "半角数字",
+            "half": "半角英数字",
+            "email": "メールアドレス"
+          },
+          "addOption": "選択肢を追加",
+          "dataGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "dataCreateSuccess": "データを作成しました",
+          "dataCreateError": "データの更新に失敗しました。\n通信環境等を確認してください。",
+          "dataUpdateSuccess": "データを更新しました",
+          "dataUpdateError": "データの更新に失敗しました。\n通信環境等を確認してください。"
+        },
+        "form": {
+          "title": "面談記録フォーム登録",
+          "addButton": "面談記録フォームを作成",
+          "listTitleName": "名称",
+          "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "listDeleteSuccess": "データを削除しました",
+          "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+        },
+        "formAdd": {
+          "createTitle": "面談記録フォームの登録",
+          "editTitle": "面談記録フォームの編集",
+          "formLabelName": "名称",
+          "formLabelQuestion": "質問文",
+          "formLabelInputType": "入力種別",
+          "formLabelOption": "選択肢",
+          "formLabelInputTypePlaceholder": "選択してください",
+          "formLabelAddFreeInput": "その他テキストを入力可能にする",
+          "formLabelRestriction": "入力制限",
+          "text": "テキスト",
+          "longtext": "長文テキスト",
+          "radio": "ラジオボタン",
+          "checkbox": "チェックボックス",
+          "pulldown": "プルダウン",
+          "scale": "均等目盛",
+          "date": "日付",
+          "time": "時刻",
+          "datetime": "日時",
+          "file": "ファイル",
+          "displayCondition": "回答に応じてセクションに移動",
+          "toBeRequired": "この項目を必須にする",
+          "addSection": "セクションを追加",
+          "addOption": "選択肢を追加",
+          "dataGetError": "フォームデータの取得に失敗しました。通信環境等を確認してください。",
+          "dataCreateSuccess": "データを登録しました。",
+          "dataCreateError": "データの登録に失敗しました。通信環境等を確認してください。",
+          "dataUpdateSuccess": "データを更新しました。",
+          "dataUpdateError": "データの更新に失敗しました。通信環境等を確認してください。",
+          "itemListGetError": "面談記録項目リストがありません。\n面談記録項目を確認してください。"
+        }
+      },
+      "questionnaire": {
+        "itemList": {
+          "title": "アンケート項目登録",
+          "addButton": "アンケート項目を作成",
+          "listTitleName": "名称",
+          "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "listDeleteSuccess": "データを削除しました",
+          "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+        },
+        "itemNew": {
+          "createTitle": "アンケート項目の登録",
+          "editTitle": "アンケート項目の編集",
+          "formLabelName": "名称",
+          "formLabelQuestion": "質問文",
+          "formLabelInputType": "入力種別",
+          "formLabelOption": "選択肢",
+          "formLabelInputTypePlaceholder": "選択してください",
+          "formLabelAddFreeInput": "その他テキストを入力可能にする",
+          "formLabelRestriction": "入力制限",
+          "text": "テキスト",
+          "longtext": "長文テキスト",
+          "radio": "ラジオボタン",
+          "checkbox": "チェックボックス",
+          "pulldown": "プルダウン",
+          "scale": "均等目盛",
+          "date": "日付",
+          "time": "時刻",
+          "datetime": "日時",
+          "yearmonth": "年月",
+          "file": "ファイル",
+          "department": "部署",
+          "interviewer": "面談者",
+          "restriction": {
+            "none": "なし",
+            "numeric": "半角数字",
+            "alphanumeric": "半角英数字",
+            "mail": "メールアドレス"
+          },
+          "addOption": "選択肢を追加",
+          "dataGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "dataCreateSuccess": "データを作成しました",
+          "dataCreateError": "データの更新に失敗しました。\n通信環境等を確認してください。",
+          "dataUpdateSuccess": "データを更新しました",
+          "dataUpdateError": "データの更新に失敗しました。\n通信環境等を確認してください。"
+        },
+        "formList": {
+          "title": "アンケートフォーム登録",
+          "addButton": "アンケートフォームを作成",
+          "listTitleName": "名称",
+          "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+          "listDeleteSuccess": "データを削除しました",
+          "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+        },
+        "formNew": {
+          "createTitle": "アンケートフォームの登録",
+          "editTitle": "アンケートフォームの編集",
+          "formLabelName": "名称",
+          "formLabelQuestion": "質問文",
+          "formLabelInputType": "入力種別",
+          "formLabelOption": "選択肢",
+          "formLabelInputTypePlaceholder": "選択してください",
+          "formLabelAddFreeInput": "その他テキストを入力可能にする",
+          "formLabelRestriction": "入力制限",
+          "text": "テキスト",
+          "longtext": "長文テキスト",
+          "radio": "ラジオボタン",
+          "checkbox": "チェックボックス",
+          "pulldown": "プルダウン",
+          "scale": "均等目盛",
+          "date": "日付",
+          "time": "時刻",
+          "datetime": "日時",
+          "file": "ファイル",
+          "displayCondition": "回答に応じてセクションに移動",
+          "displayTitle": "セクション名を表示する",
+          "toBeRequired": "この項目を必須にする",
+          "addSection": "セクションを追加",
+          "addOption": "選択肢を追加",
+          "dataGetError": "フォームデータの取得に失敗しました。通信環境等を確認してください。",
+          "dataCreateSuccess": "データを登録しました。",
+          "dataCreateError": "データの登録に失敗しました。通信環境等を確認してください。",
+          "dataUpdateSuccess": "データを更新しました。",
+          "dataUpdateError": "データの更新に失敗しました。通信環境等を確認してください。",
+          "itemListGetError": "アンケート項目リストがありません。\nアンケート項目を確認してください。"
+        }
+      }
+    },
+    "memberGroup": {
+      "title": "グループ管理",
+      "addButton": "グループを作成",
+      "listTitleName": "グループ名",
+      "listTitleCreatedBy": "作成者",
+      "listTitleUpdatedAt": "更新日時",
+      "listGetError": "グループデータの取得に失敗しました。\n通信環境等を確認してください。",
+      "listDeleteSuccess": "グループを削除しました",
+      "listDeleteError": "グループの削除に失敗しました。\n通信環境等を確認してください。",
+      "createTitle": "グループの作成",
+      "editTitle": "グループの編集",
+      "formLabelName": "グループ名",
+      "create": "作成",
+      "update": "更新",
+      "dataCreateSuccess": "グループを作成しました",
+      "dataCreateError": "グループの作成に失敗しました。\n通信環境等を確認してください。",
+      "dataUpdateSuccess": "グループを更新しました",
+      "dataUpdateError": "グループの更新に失敗しました。\n通信環境等を確認してください。",
+      "dataGetError": "グループデータの取得に失敗しました。\n通信環境等を確認してください。"
+    },
+    "memberLabel": {
+      "title": "ラベル管理",
+      "addButton": "ラベルを作成",
+      "listTitleName": "ラベル名",
+      "listTitleColor": "色",
+      "listTitleViewRestriction": "閲覧制限設定",
+      "listTitleCreatedBy": "作成者",
+      "listTitleUpdatedAt": "更新日時",
+      "viewRestrictionAll": "全員が閲覧可能",
+      "viewRestrictionSpecific": "特定ユーザーのみ閲覧可能",
+      "listGetError": "ラベルデータの取得に失敗しました。\n通信環境等を確認してください。",
+      "listDeleteSuccess": "ラベルを削除しました",
+      "listDeleteError": "ラベルの削除に失敗しました。\n通信環境等を確認してください。",
+      "createTitle": "ラベルの作成",
+      "editTitle": "ラベルの編集",
+      "formLabelName": "ラベル名",
+      "formLabelColor": "ラベルの色",
+      "formLabelViewRestriction": "閲覧制限設定",
+      "formLabelViewRestrictionAll": "全員が閲覧可能",
+      "formLabelViewRestrictionSpecific": "特定ユーザーのみ閲覧可能",
+      "formLabelViewRestrictionUserPlaceholder": "ユーザーを検索",
+      "create": "作成",
+      "update": "更新",
+      "dataCreateSuccess": "ラベルを作成しました",
+      "dataCreateError": "ラベルの作成に失敗しました。\n通信環境等を確認してください。",
+      "dataUpdateSuccess": "ラベルを更新しました",
+      "dataUpdateError": "ラベルの更新に失敗しました。\n通信環境等を確認してください。",
+      "dataGetError": "ラベルデータの取得に失敗しました。\n通信環境等を確認してください。"
+    },
+    "members": {
+      "karte": {
+        "title": "従業員カルテ",
+        "listTitleCode": "従業員番号",
+        "listTitleName": "名称",
+        "listTitleLabel": "ラベル",
+        "memberInfo": "従業員情報",
+        "memberMemo": "従業員メモ",
+        "memberLabel": "ラベル",
+        "karte": "カルテ",
+        "reservation": "予約",
+        "memo": {
+          "formLabelContent": "メモ内容",
+          "formLabelAccessLevel": "公開範囲",
+          "accessLevel": {
+            "own": "自分のみ",
+            "all": "全員"
+          }
+        }
+      },
+      "list": {
+        "title": "従業員一覧",
+        "listTitleCode": "従業員番号",
+        "listTitleName": "名称",
+        "listTitleLabel": "ラベル",
+        "listTitleGender": "性別",
+        "listTitleAge": "年齢",
+        "listTitleDepartments": "部署",
+        "listTitleWorkplace": "拠点",
+        "listTitleMemberGroups": "グループ",
+        "listTitleEmail": "メールアドレス",
+        "listTitleEntryDate": "入社日",
+        "listTitleRetirementDate": "退職日",
+        "listTitleLaborOffice": "事業場",
+        "listTitleLeaveDate": "休職開始日",
+        "listTitleLeaveEndDate": "休職終了予定日",
+        "karte": "カルテ",
+        "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+        "listDeleteSuccess": "データを削除しました。",
+        "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+      }
+    },
+    "healthCheckCourseTypes": {
+      "title": "健康診断種別管理",
+      "addButton": "健康診断種別を作成",
+      "listTitleName": "健康診断種別名",
+      "listTitleCreatedBy": "作成者",
+      "listTitleUpdatedAt": "更新日時",
+      "listGetError": "健康診断種別データの取得に失敗しました。\n通信環境等を確認してください。",
+      "listDeleteSuccess": "健康診断種別を削除しました",
+      "listDeleteError": "健康診断種別の削除に失敗しました。\n通信環境等を確認してください。",
+      "createTitle": "健康診断種別の作成",
+      "editTitle": "健康診断種別の編集",
+      "formLabelName": "健康診断種別名",
+      "create": "作成",
+      "update": "更新",
+      "dataCreateSuccess": "健康診断種別を作成しました",
+      "dataCreateError": "健康診断種別の作成に失敗しました。\n通信環境等を確認してください。",
+      "dataUpdateSuccess": "健康診断種別を更新しました",
+      "dataUpdateError": "健康診断種別の更新に失敗しました。\n通信環境等を確認してください。",
+      "dataGetError": "健康診断種別データの取得に失敗しました。\n通信環境等を確認してください。"
+    },
+    "workHours": {
+      "list": {
+        "title": "労働時間管理",
+        "listTitleCode": "従業員番号",
+        "listTitleName": "氏名",
+        "listTitleLabel": "ラベル",
+        "listTitleJobName": "役職",
+        "listTitleGender": "性別",
+        "listTitleAge": "年齢",
+        "listTitleDepartments": "部署",
+        "listTitleOverOvertimeLimitCount": "超過",
+        "listTitleOvertimeMinutes": "時間外労働",
+        "listTitleHolidayWorkMinutes": "休日労働",
+        "listTitleTotalOvertimeMinutes": "計（時間外 + 休日）",
+        "listTitleLast1m": "{{mon}}月",
+        "listTitleLast2m": "{{mon}}月",
+        "listTitleLast3m": "{{mon}}月",
+        "listTitleLast4m": "{{mon}}月",
+        "listTitleLast5m": "{{mon}}月",
+        "listTitleLast6m": "{{mon}}月",
+        "listTitleLast7m": "{{mon}}月",
+        "listTitleLast8m": "{{mon}}月",
+        "listTitleLast9m": "{{mon}}月",
+        "listTitleLast10m": "{{mon}}月",
+        "listTitleLast11m": "{{mon}}月",
+        "listTitleLast12m": "{{mon}}月",
+        "listGetError": "データの取得に失敗しました。\n通信環境等を確認してください。",
+        "listDeleteSuccess": "データを削除しました。",
+        "listDeleteError": "データの削除に失敗しました。\n通信環境等を確認してください。"
+      }
+    },
+    "messageTemplate": {
+      "title": "定型文管理",
+      "addButton": "定型文を作成",
+      "listTitleName": "定型文名",
+      "listTitleRelatedType": "関連種別",
+      "listTitleSubject": "件名",
+      "listTitleBody": "本文",
+      "listTitleInitialDisplay": "初期表示",
+      "listGetError": "定型文データの取得に失敗しました。\n通信環境等を確認してください。",
+      "listDeleteSuccess": "定型文を削除しました",
+      "listDeleteError": "定型文の削除に失敗しました。\n通信環境等を確認してください。",
+      "createTitle": "定型文の作成",
+      "editTitle": "定型文の編集",
+      "duplicateTitle": "定型文の複製",
+      "formLabelName": "定型文名",
+      "formLabelSubject": "件名",
+      "formLabelBody": "本文",
+      "create": "作成",
+      "update": "更新",
+      "duplicate": "複製",
+      "dataCreateSuccess": "定型文を作成しました",
+      "dataCreateError": "定型文の作成に失敗しました。\n通信環境等を確認してください。",
+      "dataUpdateSuccess": "定型文を更新しました",
+      "dataUpdateError": "定型文の更新に失敗しました。\n通信環境等を確認してください。",
+      "dataDuplicateSuccess": "定型文を複製しました",
+      "dataDuplicateError": "定型文の複製に失敗しました。\n通信環境等を確認してください。",
+      "dataGetError": "定型文データの取得に失敗しました。\n通信環境等を確認してください。",
+      "deleteConfirmation": "この定型文を削除してもよろしいですか？",
+      "deleteSuccess": "定型文を削除しました",
+      "deleteError": "定型文の削除に失敗しました。\n通信環境等を確認してください。",
+
+      "breadcrumb": "定型文"
+    },
+    "autoLabeling": {
+      "condition": {
+        "targetItemProperty": {
+          "gender": "性別",
+          "age": "年齢",
+          "jobName": "職種",
+          "laborOfficeName": "事業場",
+          "workplaceName": "拠点",
+          "entryDate": "入社日",
+          "retirementDate": "退職日"
+        }
+      },
+      "title": "自動ラベル操作設定一覧"
+    },
+    "healthCheckQuestionnaires": {
+      "deliverySetting": {
+        "name": "配信名",
+        "titleQuestionnaire": "アンケート名",
+        "titleTargetMembers": "対象者",
+        "titleScheduledSendDateTime": "配信予定日時",
+        "titleAnswerPeriod": "回答期間",
+        "titleActions": "操作",
+        "edit": "編集",
+        "copy": "複製",
+        "delete": "削除",
+        "confirmDelete": "本当に削除しますか？",
+        "deleteSuccess": "アンケート配信設定を削除しました"
+      },
+      "list": {
+        "title": "健診アンケート一覧"
+      },
+      "edit": {
+        "title": "健診アンケート編集"
+      },
+      "new": {
+        "title": "健診アンケート作成"
+      },
+      "item": {
+        "list": {
+          "title": "健診アンケート項目一覧"
+        },
+        "edit": {
+          "title": "健診アンケート項目編集"
+        },
+        "new": {
+          "title": "健診アンケート項目作成"
+        }
+      }
+    },
+
+    "questionnaires": {
+      "deliverySetting": {
+        "name": "配信名",
+        "titleQuestionnaire": "アンケート名",
+        "titleTargetMembers": "対象者",
+        "titleScheduledSendDateTime": "配信予定日時",
+        "titleAnswerPeriod": "回答期間",
+        "titleActions": "操作",
+        "edit": "編集",
+        "copy": "複製",
+        "delete": "削除",
+        "confirmDelete": "本当に削除しますか？",
+        "deleteSuccess": "アンケート配信設定を削除しました"
+      }
+    },
+    "healthCheck": {
+      "list": {
+        "title": "健康診断一覧",
+        "progress": {
+          "title": "進捗"
+        },
+        "reservationSlots": {
+          "title": "予約枠管理"
+        },
+        "deliverySettings": {
+          "title": "配信管理"
+        },
+        "results": {
+          "title": "結果管理"
+        }
+      },
+      "secondaryApplySettings": {
+        "title": "二次健診対象設定一覧"
+      }
+    },
+    "medicalQuestionnaires": {
+      "list": {
+        "title": "問診票一覧"
+      },
+      "new": {
+        "title": "問診票作成"
+      },
+      "edit": {
+        "title": "問診票編集"
+      },
+      "items": {
+        "list": {
+          "title": "問診項目一覧"
+        },
+        "new": {
+          "title": "問診項目作成"
+        },
+        "edit": {
+          "title": "問診項目編集"
+        }
+      }
+    },
+    "formOutouts": {
+      "title": "帳票出力"
+    },
+    "healthGuidances": {
+      "list": {
+        "title": "特定保健指導一覧"
+      },
+      "courses": {
+        "list": {
+          "title": "特定保健指導コース一覧"
+        }
+      }
+    },
+    "safetyHealthCommittees": {
+      "list": {
+        "title": "安全衛生委員会"
+      },
+      "new": {
+        "title": "議事録作成"
+      },
+      "edit": {
+        "title": "議事録編集"
+      },
+      "copy": {
+        "title": "議事録複製"
+      },
+      "detail": {
+        "title": "安全衛生委員会 議事録"
+      }
+    },
+    "workPlacePatrols": {
+      "list": {
+        "title": "職場巡視"
+      },
+      "forms": {
+        "list": {
+          "title": "職場巡視フォーム一覧"
+        },
+        "new": {
+          "title": "職場巡視フォーム作成"
+        },
+        "edit": {
+          "title": "職場巡視フォーム編集"
+        }
+      },
+      "records": {
+        "list": {
+          "title": "職場巡視記録一覧"
+        },
+        "new": {
+          "title": "職場巡視記録作成"
+        },
+        "edit": {
+          "title": "職場巡視記録編集"
+        },
+        "detail": {
+          "title": "職場巡視記録"
+        }
+      },
+      "items": {
+        "list": {
+          "title": "職場巡視チェック項目一覧"
+        },
+        "new": {
+          "title": "職場巡視チェック項目作成"
+        },
+        "edit": {
+          "title": "職場巡視チェック項目編集"
+        }
+      }
+    },
+    "notification": {
+      "list": {
+        "title": "お知らせ受信一覧"
+      },
+      "new": {
+        "title": "通知作成"
+      },
+      "edit": {
+        "title": "通知編集"
+      }
+    },
+    "notice": {
+      "list": {
+        "title": "お知らせ一覧"
+      },
+      "new": {
+        "title": "お知らせ作成"
+      },
+      "edit": {
+        "title": "お知らせ編集"
+      }
+    },
+    "settings": {
+      "users": {
+        "list": {
+          "title": "ユーザー"
+        },
+        "new": {
+          "title": "ユーザー作成"
+        },
+        "edit": {
+          "title": "ユーザー編集"
+        }
+      },
+      "departments": {
+        "list": {
+          "title": "部署一覧"
+        },
+        "new": {
+          "title": "部署作成"
+        },
+        "edit": {
+          "title": "部署編集"
+        }
+      },
+      "facilities": {
+        "list": {
+          "title": "施設一覧"
+        },
+        "new": {
+          "title": "施設作成"
+        },
+        "edit": {
+          "title": "施設編集"
+        }
+      },
+      "memberGroups": {
+        "list": {
+          "title": "グループ管理"
+        },
+        "new": {
+          "title": "グループ作成"
+        },
+        "edit": {
+          "title": "グループ編集"
+        }
+      },
+      "medicallyJudges": {
+        "list": {
+          "title": "医学的判定一覧"
+        },
+        "new": {
+          "title": "医学的判定作成"
+        },
+        "edit": {
+          "title": "医学的判定編集"
+        }
+      },
+      "laborOffices": {
+        "list": {
+          "title": "事業場一覧"
+        },
+        "new": {
+          "title": "事業場作成"
+        },
+        "edit": {
+          "title": "事業場編集"
+        }
+      },
+      "jobTitle": {
+        "list": {
+          "title": "役職一覧"
+        }
+      },
+      "messageTemplate": {
+        "list": {
+          "title": "権限一覧"
+        }
+      },
+      "searchConditionTemplates": {
+        "list": {
+          "title": "検索条件一覧"
+        }
+      },
+      "workHoursSetting": {
+        "title": "労働時間基準設定"
+      },
+      "workPlaces": {
+        "list": {
+          "title": "拠点一覧"
+        }
+      },
+      "customFields": {
+        "list": {
+          "title": "カスタムフィールド設定"
+        },
+        "new": {
+          "title": "カスタムフィールド作成"
+        },
+        "edit": {
+          "title": "カスタムフィールド編集"
+        }
+      }
+    }
+  }
+}

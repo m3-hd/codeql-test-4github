@@ -1,0 +1,44 @@
+{
+  "pages": {
+    "signIn": {
+      "signInWith": "Sign in with {{provider}}",
+      "or": "OR",
+      "confirmEmailCode": {
+        "title": "The verification code has been sent to your registered e-mail address.<br/>Please enter the verification code.",
+        "submit": "Submit",
+        "code": "Verification Code"
+      },
+      "confirmNewPassword": {
+        "title": "Please set a new password",
+        "submit": "Submit",
+        "newPassword": "New Password"
+      }
+    },
+    "memberLabel": {
+      "title": "Label Management",
+      "addButton": "Create Label",
+      "listTitleName": "Label Name",
+      "listTitleColor": "Color",
+      "listTitleCreatedBy": "Created By",
+      "listTitleUpdatedAt": "Updated At",
+      "listGetError": "Failed to retrieve label data.\nPlease check your network connection.",
+      "listDeleteSuccess": "Label deleted",
+      "listDeleteError": "Failed to delete label.\nPlease check your network connection.",
+      "createTitle": "Create Label",
+      "editTitle": "Edit Label",
+      "formLabelName": "Label Name",
+      "formLabelColor": "Label Color",
+      "formLabelViewRestriction": "View Restriction",
+      "formLabelViewRestrictionAll": "Visible to everyone",
+      "formLabelViewRestrictionSpecific": "Visible to specific users only",
+      "formLabelViewRestrictionUserPlaceholder": "Search users",
+      "create": "Create",
+      "update": "Update",
+      "dataCreateSuccess": "Label created",
+      "dataCreateError": "Failed to create label.\nPlease check your network connection.",
+      "dataUpdateSuccess": "Label updated",
+      "dataUpdateError": "Failed to update label.\nPlease check your network connection.",
+      "dataGetError": "Failed to retrieve label data.\nPlease check your network connection."
+    }
+  }
+}

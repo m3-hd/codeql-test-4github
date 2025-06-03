@@ -1,0 +1,67 @@
+name: "deploy-admin"
+concurrency:
+  group: deploy-admin-${{ github.ref }}
+  cancel-in-progress: true
+on:
+  push:
+    branches: ["production", "develop"]
+    paths:
+      - ".github/workflows/deploy_admin.yml"
+      - ".github/workflows/deploy_*_frontend_function.yml"
+      - ".github/workflows/deploy_*_backend_function.yml"
+      - "apps/admin/frontend/**"
+      - "apps/admin/backend/**"
+env:
+  aws_region: "ap-northeast-1"
+  admin_path: "apps/admin"
+  admin_frontend_path: "apps/admin/frontend"
+  admin_backend_path: "apps/admin/backend"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  set-env:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name }}
+    timeout-minutes: 10
+    outputs:
+      aws_region: ${{ env.aws_region }}
+      env: ${{ github.ref_name }}
+      short-env: ${{ github.ref_name == 'develop' && 'dev' || github.ref_name == 'production' && 'prod' || github.ref_name == 'staging' && 'stg' || 'dummy' }}
+      admin-frontend-working-directory: ${{ env.admin_frontend_path }}
+      admin-backend-working-directory: ${{ env.admin_backend_path }}
+    steps:
+      - uses: actions/checkout@v4
+
+  # adminはまだ実装されていないためコメントアウトしておく。
+  # 必要に応じて、コメントを外して使用してください。
+
+  # frontend-deploy-mc-admin:
+  #   needs: set-env
+  #   uses: "./.github/workflows/deploy_mc_frontend_function.yml"
+  #   with:
+  #     tenancy: "mc"
+  #     subsystem: "admin"
+  #     aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+  #     aws-region: ${{ needs.set-env.outputs.aws_region }}
+  #     env: ${{ needs.set-env.outputs.env }}
+  #     short-env: ${{ needs.set-env.outputs.short-env }}
+  #     working-directory: ${{ needs.set-env.outputs.admin-frontend-working-directory }}
+  #   secrets:
+  #     MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}
+
+  # backend-deploy-mc-admin:
+  #   needs: set-env
+  #   uses: "./.github/workflows/deploy_mc_backend_function.yml"
+  #   with:
+  #     tenancy: "mc"
+  #     subsystem: "admin"
+  #     aws-account: "mc-${{ needs.set-env.outputs.short-env }}"
+  #     aws-region: ${{ needs.set-env.outputs.aws_region }}
+  #     env: ${{ needs.set-env.outputs.env }}
+  #     short-env: ${{ needs.set-env.outputs.short-env }}
+  #     working-directory: ${{ needs.set-env.outputs.admin-backend-working-directory }}
+  #   secrets:
+  #     MC_DEPLOY_IAM_ROLE_ARN: ${{ secrets.MC_DEPLOY_IAM_ROLE_ARN }}

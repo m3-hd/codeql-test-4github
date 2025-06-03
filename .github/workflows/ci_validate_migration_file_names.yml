@@ -1,0 +1,51 @@
+name: "[_CI] Validate Migration File Names"
+
+on:
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - "**.sql"
+
+jobs:
+  validate-migration-file-names:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .github/workflows/validate-migration-file-names
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # 全ての履歴を取得
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm ci
+
+      # TODO: 同じプログラム内でtestdata/のバージョンチェックもできた方が望ましいかも
+      - name: Set Environment Variables for tenant Directory
+        run: echo "MIGRATION_DIR_PATH=../../../apps/manage/backend/src/main/resources/db/migration/tenant/" >> $GITHUB_ENV
+      - name: Run validation test for tenant Directory
+        run: npm run start
+
+      - name: Set Environment Variables for common Directory
+        run: echo "MIGRATION_DIR_PATH=../../../apps/manage/backend/src/main/resources/db/migration/common/" >> $GITHUB_ENV
+      - name: Run validation test for common Directory
+        run: npm run start
+
+      # 新規追加のmigrationファイルのみ除外してマイグレーションファイルの変更を確認する
+      - name: Check migration files has been updated.
+        id: diff
+        run: |
+          echo "migration_check=$(git diff origin/${{ github.base_ref }} HEAD --name-status --relative=../../../apps/manage/backend/src/main/resources/db/migration | grep -v "^A" | wc -l)" >> $GITHUB_ENV
+
+      - name: Show migration files has been updated.
+        if: steps.diff.outputs.migration_check > 0
+        run: |
+          git diff origin/${{ github.base_ref }} HEAD --name-status --relative=../../../apps/manage/backend/src/main/resources/db/migration | grep -v "^A"
+          exit 1
