@@ -1,0 +1,87 @@
+name: "CodeQL Frontend Analysis"
+
+on:
+  push:
+    branches: ["main", "dev"]
+    paths:
+      - "apps/*/frontend/**"
+  pull_request:
+    branches: ["main", "dev"]
+    paths:
+      - "apps/*/frontend/**"
+  schedule:
+    - cron: "0 0 * * 0"
+  workflow_call: # 他のワークフローからの呼び出しを可能にする
+
+env:
+  NODE_VERSION: "20"
+  NODE_OPTIONS: "--max_old_space_size=4096"
+
+jobs:
+  analyze-frontend:
+    name: Analyze Frontend (${{ matrix.target.name }})
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: manage-frontend
+            path: apps/manage/frontend
+          - name: member-frontend
+            path: apps/member/frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          build-mode: none
+          db-location: "${{ runner.temp }}/codeql_db_${{ matrix.target.name }}"
+
+      - name: Debug - List source files
+        run: |
+          echo "Files in frontend directory:"
+          find ${{ matrix.target.path }}/src -type f | while read file; do
+            echo "  - $file"
+          done
+          echo "Total files found:"
+          find ${{ matrix.target.path }}/src -type f | wc -l
+
+      - name: Build Frontend
+        run: |
+          cd ${{ matrix.target.path }}
+          yarn install --frozen-lockfile
+          yarn run build
+        env:
+          NODE_OPTIONS: ${{ env.NODE_OPTIONS }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:javascript-typescript/${{ matrix.target.name }}"
+          db-location: "${{ runner.temp }}/codeql_db_${{ matrix.target.name }}"
