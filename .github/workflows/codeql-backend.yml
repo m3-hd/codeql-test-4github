@@ -11,7 +11,7 @@ on:
       - "apps/*/backend/**"
   schedule:
     - cron: "0 0 * * 0"
-  wolrkflow_cal:  # 他のワークフローからの呼び出しを可能にする
+  workflow_call:  # 他のワークフローからの呼び出しを可能にする
 
 env:
   JAVA_VERSION: '21'
