@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
 
   // 認証関連ページの静的最適化を無効化
-  unstable_runtimeJS: true,
+  // unstable_runtimeJS: true,
 
   // コールバックルートを適切に処理するためのリライト設定
   async rewrites() {
