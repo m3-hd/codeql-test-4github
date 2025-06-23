@@ -22,13 +22,13 @@ export class SecurityIssues {
         return md5.update(password).digest('hex');
     }
 
-    // public commandInjection(userInput: string): void {
-    //     // Command injection vulnerability
-    //     const exec = require('child_process').exec;
-    //     exec('ls ' + userInput, (error, stdout, stderr) => {
-    //         console.log(stdout);
-    //     });
-    // }
+    public commandInjection(userInput: string): void {
+        // Command injection vulnerability
+        const exec = require('child_process').exec;
+        exec('ls ' + userInput, (error, stdout, stderr) => {
+            console.log(stdout);
+        });
+    }
 
     public insecureFileOperation(fileName: string): void {
         // Insecure file operation
